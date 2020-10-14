@@ -11,7 +11,7 @@ describe("/api/users", () => {
   });
   afterEach(async () => {
     await server.close();
-    await User.remove({});
+    await User.deleteMany({});
   });
 
   describe("GET /", () => {

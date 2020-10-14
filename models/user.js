@@ -60,6 +60,7 @@ function validateUser(user) {
     name: Joi.string().min(5).max(50).required(),
     email: Joi.string().min(5).max(75).email().required(),
     password: Joi.string().min(5).max(255).required(),
+    seller: Joi.boolean(),
   });
   return schema.validate(user);
 }

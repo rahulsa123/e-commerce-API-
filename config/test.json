@@ -2,5 +2,6 @@
     "mode":"rahul test",
     "port":3001,
     "mongoUri":"mongodb://localhost:27017/e-commerce-test",
-    "jwtKey":"rahulsahu-test"
+    "jwtKey":"rahulsahu-test",
+    "staticDir":"static-test"
 }

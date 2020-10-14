@@ -2,13 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { User, validateUser } = require("../models/user");
 const _ = require("lodash");
-const auth = require("../middleware/auth");
+const hasToken = require("../middleware/auth");
 
 const validateObjectId = require("../middleware/validateObjectId");
 router.get("/", async (req, res) => {
   const users = await User.find().select("_id name email");
   res.send(users);
 });
+
 router.post("/", async (req, res) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -37,14 +38,15 @@ router.get("/:id", validateObjectId, async (req, res) => {
   if (!user) return res.status(404).send("Not found.");
   res.send(_.pick(user, ["_id", "name", "email"]));
 });
-router.put("/:id", auth, validateObjectId, async (req, res) => {
+
+router.put("/:id", hasToken, validateObjectId, async (req, res) => {
   if (req.user._id !== req.params.id)
     return res
       .status(403)
       .send("The user does not have access rights to the content");
   const user = await User.findByIdAndUpdate(
     req.params.id,
-    { name: req.body.name },
+    { name: req.body.name, seller: req.body.seller || false },
     { new: true }
   );
   if (!user) return res.status(404).send("Not found.");
