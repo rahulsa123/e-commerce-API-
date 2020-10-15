@@ -1,5 +1,5 @@
 {
-    "mode":"rahul test",
+    "mode":"test",
     "port":3001,
     "mongoUri":"mongodb://localhost:27017/e-commerce-test",
     "jwtKey":"rahulsahu-test",

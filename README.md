@@ -100,5 +100,15 @@
            updated shop details
         </td>
     </tr>
-    
+    <tr>
+        <td>
+           PUT /api/shops/:id/image
+        </td>
+        <td>
+            update shop's image
+        </td>
+        <td>
+           updated shop details with new image url 
+        </td>
+    </tr>
 </table>

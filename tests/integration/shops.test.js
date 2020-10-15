@@ -1,6 +1,8 @@
 const request = require("supertest");
 const { User } = require("../../models/user");
 const { Shop } = require("../../models/shop");
+const path = require("path");
+const fs = require("fs");
 const mongoose = require("mongoose");
 
 const endPoint = "/api/shops";
@@ -187,6 +189,81 @@ describe(endPoint, () => {
       let shop = await Shop.findById(id);
       expect(shop.name).toBe("new name for shop1");
       expect(shop.description).toBe("new description for shop1");
+    });
+  });
+
+  describe("PUT /:id/image", () => {
+    let id;
+    let shop1;
+    let user1;
+    let image;
+    const exec = async () => {
+      return await request(server)
+        .put(endPoint + "/" + id + "/image")
+        .set("x-auth-token", token)
+        .attach("image", image);
+    };
+    beforeEach(async () => {
+      user1 = new User({ ...users[0] });
+
+      token = user1.genrateAuthToken();
+      shop1 = { ...shops[0] };
+      shop1.owner = user1._id;
+      let ref = await Shop(shop1).save();
+      id = ref._id.toHexString();
+      image = path.resolve("./static-test/default");
+    });
+    afterEach(async () => {
+      await User.deleteMany({});
+      await Shop.deleteMany({});
+    });
+    it("should return 401 if token is not avaliable", async () => {
+      token = "";
+      image += ".jpg";
+      const res = await exec();
+      expect(res.status).toBe(401);
+    });
+    it("should return 403 if owner's token is not provided", async () => {
+      token = new User().genrateAuthToken();
+      image += ".jpg";
+      const res = await exec();
+      expect(res.status).toBe(403);
+    });
+    it("should return 404 if shop not found", async () => {
+      image += ".jpg";
+      id = mongoose.Types.ObjectId();
+      const res = await exec();
+      expect(res.status).toBe(404);
+    });
+    it("should return 404 if id is not in valid form", async () => {
+      id = 25;
+      image += ".jpg";
+      const res = await exec();
+      expect(res.status).toBe(404);
+    });
+
+    it("should return 400 if image is not provided", async () => {
+      image = "";
+      const res = await exec();
+      expect(res.status).toBe(400);
+    });
+    it("should return 415 if media formate not supported", async () => {
+      image += ".txt";
+      const res = await exec();
+      expect(res.status).toBe(415);
+    });
+    it("should return shop with updated image url", async () => {
+      image += ".jpg";
+      const res = await exec();
+      expect(res.status).toBe(200);
+      image =
+        path.resolve("./static-test/images") +
+        "/" +
+        res.body.imageUrl.split("/static/images/")[1];
+
+      fs.unlink(image, (err) => {
+        if (err) console.log(err);
+      });
     });
   });
 });

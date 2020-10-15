@@ -18,10 +18,7 @@ app.use(express.json());
 app.use("/api/users", userRouter);
 app.use("/api/shops", shopRouter);
 app.use("/api/login", authRouter);
-app.use(
-  "/static",
-  express.static(path.join(__dirname, config.staticDir + "/images"))
-);
+app.use("/static", express.static(path.join(__dirname, config.staticDir)));
 
 const server = app.listen(config.port, () =>
   console.log(`listening on port ${config.port}`)
