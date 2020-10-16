@@ -6,14 +6,14 @@ const config = require("config");
 const { Shop, validateShop } = require("../models/shop");
 const auth = require("../middleware/auth");
 const validateObjectId = require("../middleware/validateObjectId");
-
+const seller = require("./../middleware/seller");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   const shops = await Shop.find().select("-__v");
   return res.send(shops);
 });
-router.post("/", auth, async (req, res) => {
+router.post("/", auth, seller, async (req, res) => {
   const { error } = validateShop(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   let shop = new Shop({
@@ -30,7 +30,7 @@ router.get("/:id", validateObjectId, async (req, res) => {
 
   return res.send(shop);
 });
-router.put("/:id", auth, validateObjectId, async (req, res) => {
+router.put("/:id", auth,seller, validateObjectId, async (req, res) => {
   let shop = await Shop.findById(req.params.id);
   if (!shop) return res.status(404).send("Shop not found.");
 
@@ -52,7 +52,7 @@ router.put("/:id", auth, validateObjectId, async (req, res) => {
 
   return res.send(shop);
 });
-router.put("/:id/image", auth, validateObjectId, async (req, res) => {
+router.put("/:id/image", auth,seller, validateObjectId, async (req, res) => {
   let shop = await Shop.findById(req.params.id);
   if (!shop) return res.status(404).send("Shop not found.");
 

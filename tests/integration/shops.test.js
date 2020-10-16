@@ -4,7 +4,7 @@ const { Shop } = require("../../models/shop");
 const path = require("path");
 const fs = require("fs");
 const mongoose = require("mongoose");
-
+const jwt = require("jsonwebtoken");
 const endPoint = "/api/shops";
 
 describe(endPoint, () => {
@@ -72,7 +72,9 @@ describe(endPoint, () => {
     };
     beforeEach(() => {
       user1 = { ...users[0] };
+      user1.seller = true;
       token = User(user1).genrateAuthToken();
+
       shop1 = { ...shops[0] };
     });
     afterEach(async () => {
@@ -84,7 +86,7 @@ describe(endPoint, () => {
       const res = await exec();
       expect(res.status).toBe(401);
     });
-    it("should  save the shop's details if it is valid", async () => {
+    it("should  save the shop's details if it is valid and user is seller", async () => {
       await exec();
       const shop = await Shop.find({ name: shop1.name });
       expect(shop).not.toBeNull();
@@ -103,8 +105,9 @@ describe(endPoint, () => {
       return await request(server).get(endPoint + "/" + id);
     };
     beforeEach(async () => {
-      user1 = new User({ ...users[0] });
+      user1 = new User({ ...users[0], seller: true });
       token = user1.genrateAuthToken();
+
       shop1 = { ...shops[0] };
       shop1.owner = user1._id;
       shop1 = await Shop(shop1).save();
@@ -144,7 +147,7 @@ describe(endPoint, () => {
         .send(shop1);
     };
     beforeEach(async () => {
-      user1 = new User({ ...users[0] });
+      user1 = new User({ ...users[0], seller: true });
 
       token = user1.genrateAuthToken();
       shop1 = { ...shops[0] };
@@ -204,7 +207,7 @@ describe(endPoint, () => {
         .attach("image", image);
     };
     beforeEach(async () => {
-      user1 = new User({ ...users[0] });
+      user1 = new User({ ...users[0], seller: true });
 
       token = user1.genrateAuthToken();
       shop1 = { ...shops[0] };
